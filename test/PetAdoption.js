@@ -6,11 +6,20 @@ describe("PetAdoption", function () {
 
 	async function deployContractFixture() {
 		const PETS_COUNT = 5;
-		const [owner, account2] = await ethers.getSigners();
+		const ADOPTED_PET_IDX = 0;
+
+		const [owner, account2, account3] = await ethers.getSigners();
 		const PetAdoption = await ethers.getContractFactory("PetAdoption");
 		const contract = await PetAdoption.deploy(PETS_COUNT);
 
-		return { owner, contract, account2, petsAddedCount: PETS_COUNT };
+		await contract.connect(account3).adoptPet(ADOPTED_PET_IDX);
+
+		return { 
+			owner, account2, account3,
+			contract, 
+			petsAddedCount: PETS_COUNT,
+			adoptedPetIdx: ADOPTED_PET_IDX 
+		};
 	}
 
 	describe("Deployment", function () {
@@ -41,13 +50,25 @@ describe("PetAdoption", function () {
 			expect(await contract.petIndex()).to.equal(petsAddedCount + 1)
 		});
 	});
-	describe("Adopt pet", function() {
+	describe("Adopt Pet", function() {
 		it("Should revert with index out of bounds", async function() {
 			const { contract, petsAddedCount } = await loadFixture(deployContractFixture);
 
 			await expect(contract.adoptPet(petsAddedCount)).to.be.revertedWith("Pet index out of bounds!");
       await expect(contract.adoptPet(-1)).to.be.rejectedWith("value out-of-bounds");
 		});
+
+		it("Should revert with pet is already adopted", async function() {
+      const { contract, adoptedPetIdx } = await loadFixture(deployContractFixture);
+    
+      await expect(contract.adoptPet(adoptedPetIdx)).to.be.revertedWith("Pet is already adopted");
+    });
+
+		it("Should adopt pet successfully", async function() {
+      const { contract, account2 } = await loadFixture(deployContractFixture);
+			const idx = 1;
+      await expect(contract.connect(account2).adoptPet(idx)).not.to.be.revertedWith("Pet index out of bounds!");
+    });
 	});
 });
 

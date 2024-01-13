@@ -67,7 +67,10 @@ describe("PetAdoption", function () {
 		it("Should adopt pet successfully", async function() {
       const { contract, account2 } = await loadFixture(deployContractFixture);
 			const idx = 1;
-      await expect(contract.connect(account2).adoptPet(idx)).not.to.be.revertedWith("Pet index out of bounds!");
+      await expect(contract.connect(account2).adoptPet(idx)).not.to.be.reverted;
+			
+			const petOwnerAddress = await contract.petIdxToOwnerAddress(idx);
+			expect(petOwnerAddress).to.equal(account2.address);
     });
 	});
 });

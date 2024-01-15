@@ -73,6 +73,9 @@ describe("PetAdoption", function () {
       await contract.connect(account2).adoptPet(secondPetIdx);
 
       const petOwnerAddress = await contract.petIdxToOwnerAddress(firstPetIdx);
+			const zeroAddress = await contract.petIdxToOwnerAddress(100);
+
+			expect(zeroAddress).to.equal("0x0000000000000000000000000000000000000000");
       expect(petOwnerAddress).to.equal(account2.address);
 
       const petsByOwner = await contract.connect(account2).getAllAdoptedPetsByOwner();
@@ -87,6 +90,7 @@ describe("PetAdoption", function () {
     });
 	});
 });
+
 
 // npx hardhat test--network localhost
 // npx hardhat test

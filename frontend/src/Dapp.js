@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { PetItem } from "./components/PetItem";
@@ -23,13 +24,22 @@ function Dapp() {
 
   async function connectWallet() {
     try {
-      const [address] = await window.ethereum.request({
-        method: "eth_requestAccounts",
+      const [address] = await window.ethereum.request({method:"eth_requestAccounts"});
+      
+      await checkNetwork();
+      setSelectedAddress(address);
+
+      window.ethereum.on("accountChanged", ([newAddress]) => {
+        if (newAddress === undefined) {
+          setSelectedAddress(undefined);
+          return;
+        }
+
+        setSelectedAddress(newAddress);
+        // connection to SC
+        // getting owned pets
       });
 
-      await checkNetwork();
-
-      setSelectedAddress(address);
     } catch (e) {
       console.error(e.message);
     }
@@ -48,7 +58,7 @@ function Dapp() {
     if (window.ethereum.networkVersion !== HARDHAT_NETWORK_ID.toString()) {
       return switchNetwork();
     }
-    
+
     return null;
   }
 

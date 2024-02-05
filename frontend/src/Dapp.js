@@ -27,7 +27,7 @@ function Dapp() {
       const [address] = await window.ethereum.request({method:"eth_requestAccounts"});
       
       await checkNetwork();
-      setSelectedAddress(address);
+      initializeDapp(address);
 
       window.ethereum.on("accountChanged", ([newAddress]) => {
         if (newAddress === undefined) {
@@ -35,14 +35,21 @@ function Dapp() {
           return;
         }
 
-        setSelectedAddress(newAddress);
-        // connection to SC
-        // getting owned pets
+        initializeDapp(newAddress);
       });
 
     } catch (e) {
       console.error(e.message);
     }
+  }
+
+  async function initializeDapp(address) {
+    setSelectedAddress(address);
+    const contract = await initContract();
+  }
+
+  async function initContract() {
+    alert("I should init the contract!");
   }
 
   async function switchNetwork() {
